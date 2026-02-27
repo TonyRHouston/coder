@@ -172,8 +172,7 @@ jobs:
   build:
     needs: get_info
     if: needs.get_info.outputs.BUILD == 'true'
-    runs-on: ${{ github.repository_owner == 'coder' && 'depot-ubuntu-22.04-8' || 'ubuntu-latest'
-      }}
+    runs-on: ubuntu-latest
     permissions:
       packages: write
     concurrency:
