@@ -1,52 +1,42 @@
 name: weekly-docs
-# runs every monday at 9 am
 on:
   schedule:
-    - cron: "0 9 * * 1"
-  workflow_dispatch: # allows to run manually for testing
+  - cron: 0 9 * * 1
+  workflow_dispatch: null
   pull_request:
     branches:
-      - main
+    - main
     paths:
-      - "docs/**"
-
+    - docs/**
 permissions:
   contents: read
-
 jobs:
   check-docs:
-    # later versions of Ubuntu have disabled unprivileged user namespaces, which are required by the action
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     permissions:
-      pull-requests: write # required to post PR review comments by the action
+      pull-requests: write
     steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
-        with:
-          egress-policy: audit
-
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Check Markdown links
-        uses: umbrelladocs/action-linkspector@652f85bc57bb1e7d4327260decc10aa68f7694c3 # v1.4.0
-        id: markdown-link-check
-        # checks all markdown files from /docs including all subfolders
-        with:
-          reporter: github-pr-review
-          config_file: ".github/.linkspector.yml"
-          fail_on_error: "true"
-          filter_mode: "file"
-
-      - name: Send Slack notification
-        if: failure() && github.event_name == 'schedule'
-        run: |
-          curl \
-            -X POST \
-            -H 'Content-type: application/json' \
-            -d '{"msg":"Broken links found in the documentation. Please check the logs at '"${LOGS_URL}"'"}' "${{ secrets.DOCS_LINK_SLACK_WEBHOOK }}"
-          echo "Sent Slack notification"
-        env:
-          LOGS_URL: https://github.com/coder/coder/actions/runs/${{ github.run_id }}
+    - name: Harden Runner
+      uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76
+      with:
+        egress-policy: audit
+    - name: Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      with:
+        persist-credentials: false
+    - name: Check Markdown links
+      uses: umbrelladocs/action-linkspector@652f85bc57bb1e7d4327260decc10aa68f7694c3
+      id: markdown-link-check
+      with:
+        reporter: github-pr-review
+        config_file: .github/.linkspector.yml
+        fail_on_error: true
+        filter_mode: file
+    - name: Send Slack notification
+      if: failure() && github.event_name == 'schedule'
+      run: "curl \\\n  -X POST \\\n  -H 'Content-type: application/json' \\\n  -d\
+        \ '{\"msg\":\"Broken links found in the documentation. Please check the logs\
+        \ at '\"${LOGS_URL}\"'\"}' \"${{ secrets.DOCS_LINK_SLACK_WEBHOOK }}\"\necho\
+        \ \"Sent Slack notification\"\n"
+      env:
+        LOGS_URL: https://github.com/coder/coder/actions/runs/${{ github.run_id }}
