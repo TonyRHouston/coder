@@ -6,8 +6,7 @@ permissions:
 jobs:
   build_image:
     if: github.actor != 'dependabot[bot]'
-    runs-on: ${{ github.repository_owner == 'coder' && 'depot-ubuntu-22.04-4' || 'ubuntu-latest'
-      }}
+    runs-on: ubuntu-latest
     steps:
     - name: Harden Runner
       uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e
