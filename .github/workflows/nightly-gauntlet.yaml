@@ -5,9 +5,7 @@ permissions:
   contents: read
 jobs:
   test-go-pg:
-    runs-on: ${{ matrix.os == 'macos-latest' && github.repository_owner == 'coder'
-      && 'depot-macos-latest' || matrix.os == 'windows-2022' && github.repository_owner
-      == 'coder' && 'depot-windows-2022-16' || matrix.os }}
+    runs-on: ubuntu-latest
     timeout-minutes: 25
     strategy:
       fail-fast: false
